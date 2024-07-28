@@ -160,14 +160,12 @@
     </div>
 
     <!-- Footer -->
-<footer class="footer">
-    <p>© 2024 Cek Khodam Yhns. Semua hak cipta dilindungi.</p>
-</footer>
-
+    <footer class="footer">
+        <p>© 2024 Cek Khodam Yhns. Semua hak cipta dilindungi.</p>
+    </footer>
 
     <script>
-        // Array to keep track of submitted names
-        var submittedNames = [];
+        var nameToMessageMap = {};
 
         document.getElementById('nameForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the form from submitting
@@ -181,18 +179,15 @@
             resultElement.textContent = '';
 
             // Check if the name has already been submitted
-            if (submittedNames.includes(name)) {
+            if (nameToMessageMap[name]) {
                 setTimeout(function() {
-                    var message = 'Aduhh, ' + name + ', Kamu tadi udah cek nama ini, (1 nama cuma bisa 1x ya)';
+                    var message = 'Aduhh, ' + name + ', kamu sudah pernah cek khodam sebelumnya. Khodammu tadi adalah: ' + nameToMessageMap[name];
                     resultElement.textContent = message;
                     resultLoadingElement.style.display = 'none';
-                    speak(message);
+                    speakIndonesian(message);
                 }, 2000); // Simulate loading delay
                 return;
             }
-
-            // Add the name to the list of submitted names
-            submittedNames.push(name);
 
             var messages = [
                 'kamu punya khodam yang berwujud Kunti Bogel. Hati-hati, jangan dipanggil malam-malam!',
@@ -274,86 +269,96 @@
                 'WATERPARK TERBENGKALAI sebagai khodammu. Banyak cerita seram!',
                 'HANTU PASAR MALAM adalah khodammu. Petualangan di malam!',
                 'TAMAT. Terima kasih telah bermain!',
-                'TERIMAKASIH. Sampai jumpa lagi!'
+                'TERIMAKASIH. Sampai jumpa lagi!',
+                'kamu punya khodam GENDERUWO NYASAR. Jangan sampai tersesat!',
+                'LELEMBUT GUNUNG adalah khodammu. Gunung-gunung adalah wilayahnya!',
+                'kamu memiliki khodam GUNDI NASI KUNING. Hati-hati jangan sampai lapar!',
+                'ROKET JIN adalah khodammu. Berhati-hatilah dengan ledakan!',
+                'kamu punya khodam CINTA KUYUK. Selalu setia menemani!',
+                'PERI MALAM adalah khodammu. Keindahan malam selalu bersamamu!',
+                'kamu memiliki khodam SI MANIS JEMBATAN ANCOL. Hati-hati saat melintas jembatan!',
+                'GADIS NYESOT adalah khodammu. Siap berlari cepat!',
+                'kamu punya khodam TUNGGANGAN JIN. Bersiaplah untuk terbang tinggi!',
+                'WANITA API adalah khodammu. Jangan sampai terbakar!'
             ];
 
-            var randomMessage = messages[Math.floor(Math.random() * messages.length)];
-            var message = name + ', ' + randomMessage;
-
-            // Simulate loading delay
+            // Simulate a delay before displaying the result
             setTimeout(function() {
+                var randomIndex = Math.floor(Math.random() * messages.length);
+                var randomMessage = messages[randomIndex];
+
+                // Save the message for the name
+                nameToMessageMap[name] = randomMessage;
+
+                var message = 'Halo, ' + name + ', ' + randomMessage;
                 resultElement.textContent = message;
                 resultLoadingElement.style.display = 'none';
-                speak(message);
-            }, 2000); // 2000 milliseconds = 2 seconds
+
+                // Speak the message
+                speakIndonesian(message);
+            }, 2000); // Simulate loading delay
         });
 
-        function speak(text) {
+        function speakIndonesian(text) {
             if ('speechSynthesis' in window) {
                 var utterance = new SpeechSynthesisUtterance(text);
-                // Optional: Adjust the properties of the utterance
-                utterance.lang = 'id-ID'; // Set language to Indonesian
-                utterance.pitch = 1; // Adjust pitch (0 to 2)
-                utterance.rate = 1; // Adjust rate (0.1 to 10)
-                speechSynthesis.speak(utterance);
+                utterance.lang = 'id-ID';
+                window.speechSynthesis.speak(utterance);
             } else {
-                console.log('Speech synthesis not supported in this browser.');
+                console.error('Speech Synthesis not supported in this browser.');
             }
         }
 
-        // Load the IFrame Player API code asynchronously.
+        // Fungsi untuk menginisialisasi YouTube player
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtubePlayer', {
+                height: '390',
+                width: '640',
+                videoId: '4Ktksh_1W5Y',
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function playVideo() {
+            player.playVideo();
+        }
+
+        function pauseVideo() {
+            player.pauseVideo();
+        }
+
+        function stopVideo() {
+            player.stopVideo();
+        }
+
+        function onPlayerReady(event) {
+            // Event handler ketika video siap diputar
+        }
+
+        function onPlayerStateChange(event) {
+            // Event handler ketika status video berubah
+        }
+
+        // Load IFrame Player API code asynchronously
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Create a new YouTube player instance
-        var player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('youtubePlayer', {
-                height: '360',
-                width: '640',
-                videoId: '4Ktksh_1W5Y', // Video ID default
-                events: {
-                    'onReady': onPlayerReady
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            // event.target.playVideo(); // Uncomment if you want to autoplay the video
-        }
-
-        function playVideo() {
-            if (player) {
-                player.playVideo();
-            }
-        }
-
-        function pauseVideo() {
-            if (player) {
-                player.pauseVideo();
-            }
-        }
-
-        function stopVideo() {
-            if (player) {
-                player.stopVideo();
-            }
-        }
-
+        // Mengubah video saat pengguna memilih video baru dari dropdown
         document.getElementById('videoSelect').addEventListener('change', function() {
-            var videoId = this.value;
-            if (player) {
-                player.loadVideoById(videoId);
-            }
+            var selectedVideoId = this.value;
+            player.loadVideoById(selectedVideoId);
         });
 
-        // Hide loading screen after 5 seconds
+        // Simulasi loading sebelum halaman ditampilkan
         window.addEventListener('load', function() {
             setTimeout(function() {
                 document.querySelector('.loading').style.display = 'none';
-            }, 5000); // 5000 milliseconds = 5 seconds
+            }, 3000); // Simulasi loading selama 3 detik
         });
     </script>
 </body>
